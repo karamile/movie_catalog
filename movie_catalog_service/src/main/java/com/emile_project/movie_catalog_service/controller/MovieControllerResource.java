@@ -5,6 +5,7 @@ import com.emile_project.movie_catalog_service.domain.Movie;
 import com.emile_project.movie_catalog_service.domain.Rating;
 import com.emile_project.movie_catalog_service.domain.UserRating;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class MovieControllerResource {
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private DiscoveryClient discoveryClient;
 
 //    @Autowired
 //    private WebClient.Builder webClientBuilder;
@@ -31,8 +34,9 @@ public class MovieControllerResource {
         UserRating ratings = restTemplate.getForObject("http://ratings-data-services/ratingsData/user/"+userId, UserRating.class);
         assert ratings != null;
         return ratings.getUserRatings().stream().map(rating -> {
+            // For each movie Id, call movie info and get details
                     Movie movie = restTemplate.getForObject("http://movie-info-service/movie/"+rating.getMovieId(), Movie.class);
-
+            // put them all together
                     assert movie != null;
                     return new CatalogItem(movie.getName(), "test", rating.getRating());
                 })
