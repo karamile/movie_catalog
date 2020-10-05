@@ -4,6 +4,7 @@ public class Movie {
 
     private  String movieId;
     private  String name;
+    private String getDescription;
 
     public Movie() {
 
@@ -28,5 +29,13 @@ public class Movie {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGetDescription() {
+        return getDescription;
+    }
+
+    public void setGetDescription(String getDescription) {
+        this.getDescription = getDescription;
     }
 }
