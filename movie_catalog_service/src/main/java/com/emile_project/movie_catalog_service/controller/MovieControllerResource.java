@@ -4,6 +4,7 @@ import com.emile_project.movie_catalog_service.domain.CatalogItem;
 import com.emile_project.movie_catalog_service.domain.Movie;
 import com.emile_project.movie_catalog_service.domain.Rating;
 import com.emile_project.movie_catalog_service.domain.UserRating;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ public class MovieControllerResource {
 //    private WebClient.Builder webClientBuilder;
 
     @RequestMapping("/{userId}")
+    @HystrixCommand(fallbackMethod = "getFallbackCatalog")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
         UserRating ratings = restTemplate.getForObject("http://ratings-data-services/ratingsData/user/"+userId, UserRating.class);
@@ -42,6 +45,9 @@ public class MovieControllerResource {
                 })
                 .collect(Collectors.toList());
 
+    }
+    public  List<CatalogItem> getFallbackCatalog(@PathVariable("userId") String userId){
+        return Collections.singletonList(new CatalogItem("no movie", "", 0));
     }
 }
 
